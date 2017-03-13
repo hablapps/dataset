@@ -30,14 +30,19 @@ class RDDTest extends FunSpec with Matchers with BeforeAndAfterAll{
     }
 
     it("automatically"){
-      val wcRDD = ToRDD(WordCount(Source(List(
+      val text: List[String] = List(
         "En un lugar de la mancha",
-        "de cuyo nombre no quiero acordarme")))).apply(sc)
+        "de cuyo nombre no quiero acordarme")
 
-      wcRDD.collect.toList shouldBe List(
-        (2,List("de")),
-        (1,List("En", "acordarme", "cuyo", "la", "lugar", "mancha",
-                "no", "nombre", "quiero", "un")))
+      val wcRDD = ToRDD(WordCount(Source(text))).apply(sc)
+
+      val wcRDDDirect = WordCount(sc.parallelize(text))
+
+      wcRDD.collect.toList shouldBe wcRDDDirect.collect.toList
+      // List(
+      //   (2,List("de")),
+      //   (1,List("En", "acordarme", "cuyo", "la", "lugar", "mancha",
+      //           "no", "nombre", "quiero", "un")))
     }
   }
 
