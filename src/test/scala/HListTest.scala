@@ -21,14 +21,5 @@ class HListTest extends FunSpec with Matchers{
       val h: Expand[String,Int,Source] :: Source :: HNil =
         ToHList(Source(List("hola")).expand(_ => List(1)))
     }
-
-    // it("word count should work with ToHList"){
-    //   val h: DMap[String,(String,Int),Filter[String,Expand[String,String,Source]]] ::
-    //          Filter[String,Expand[String,String,Source]] ::
-    //          Expand[String,String,Source] ::
-    //          Source ::
-    //          HNil =
-    //     ToHList(wordCount(Source(List("EN UN LUGAR"))))
-    // }
   }
 }
