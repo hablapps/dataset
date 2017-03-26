@@ -14,7 +14,8 @@ object Interpreter{
   import scalaz.Forall
 
   implicit def fromCase[P[_]](implicit
-    C: Forall[λ[α=>CaseInterpreter.EqualTo[DataSet[α],P[α]]]]) =
+    C: Forall[λ[α=>
+      CaseInterpreter.EqualTo[P[α]]#Case[DataSet[α]]]]) =
     new Interpreter[P]{
       def apply[A](d: DataSet[A]): P[A] = C[A](d)
     }

@@ -7,12 +7,13 @@ import scala.reflect.{classTag, ClassTag}
 /** 
  * A translation of dataset programs into Spark RDDs
  */
-trait ToRDD[A, D<:DataSet[A]] extends CaseInterpreter[D]{
-  type Out = ToRDD.Program[A]
-}
+object ToRDD extends CaseInterpreter{
 
-object ToRDD extends CaseInterpreter.Companion[λ[`D<:DataSet[_]`=>ToRDD[_,D]]]{
   type Program[T] = SparkContext => RDD[T]
+
+  trait ToRDD[A, D<:DataSet[A]] extends Case[D]{
+    type Out = ToRDD.Program[A]
+  }
 
   implicit def fromSource = new ToRDD[String,Source]{
     def apply(d: Source): Program[String] =
