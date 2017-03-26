@@ -9,13 +9,11 @@ package object datasets{
     import scalaz.{~>, Forall}
 
     implicit def fromCase[Q[_]](implicit
-      C: Forall[λ[α=>
-        CaseInterpreter[P]#Case[P[α]]{
-          type Out = Q[α]
-        }]]) = λ[P~>Q]{ C.apply(_) }
+      C: Forall[λ[α=> CaseInterpreterTo.Aux[P,Q]#Case[α,P[α]]]]) = 
+      λ[P~>Q]{ C.apply(_) }
   }
 
-  /* Case by case interpreters */
+  /* Case by case interpreters for language P[_] */
   
   trait CaseInterpreter[P[_]]{
 
@@ -36,17 +34,45 @@ package object datasets{
         }
       }
 
+    }
+  }
+
+  /* Case-by-case interpreter for given language and constant interpretation */
+
+  trait CaseInterpreterToConstant[P[_]] extends CaseInterpreter[P]{
+    type Interpretation
+
+    trait Case[D<:P[_]] extends super.Case[D]{
+      type Out <: Interpretation
+    }
+  }
+
+  /* Case-by-case interpreter for given language and interpretation */
+
+  trait CaseInterpreterTo[P[_]] extends CaseInterpreter[P]{
+    type Interpretation[_]
+
+    trait Case[A,D<:P[A]] extends super.Case[D]{
+      type Out = Interpretation[A]
+    }
+  }
+
+  object CaseInterpreterTo{
+    type Aux[P[_],Q[_]] = CaseInterpreterTo[P]{
+      type Interpretation[T]=Q[T]
+    }
+
+    trait Companion[P[_]] extends CaseInterpreter.Companion[P]{
       import scalaz.~>
 
       implicit def fromUniversal[Q[_]](implicit nat: P~>Q) = 
-        new CaseInterpreter[P]{
-          implicit def univCase[X] = new Case[P[X]]{
-            type Out = Q[X]
-            def apply(d: P[X]): Q[X] = nat(d)
+        new CaseInterpreterTo[P]{
+          type Interpretation[X] = Q[X]
+          implicit def univCase[X] = new Case[X,P[X]]{
+            def apply(d: P[X]): Interpretation[X] = nat(d)
           }
         }
     }
   }
-
 
 }
