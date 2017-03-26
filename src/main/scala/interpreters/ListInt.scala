@@ -3,7 +3,9 @@ package org.hablapps.datasets
 /** 
  * An interpreter that runs a dataset program over lists
  */
-object ToList extends Interpreter[List]{
+import scalaz.~> 
+
+object ToList extends (DataSet ~> List){
 
   def apply[A](ds: DataSet[A]): List[A] = ds match {
     case e: Expand[_,_,_] => expandToList(e)

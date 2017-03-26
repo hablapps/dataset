@@ -7,7 +7,7 @@ import shapeless.{HNil, ::, HList}
  * (heterogeneous) list of programs a given data set program
  * is made of.
  */
-object ToHList extends CaseInterpreter{
+object ToHList extends CaseInterpreter[DataSet]{
 
   trait Case[D <: DataSet[_]] extends super.Case[D]{
     type Out <: HList

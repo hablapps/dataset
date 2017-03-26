@@ -7,7 +7,7 @@ import scala.reflect.{classTag, ClassTag}
 /** 
  * A translation of dataset programs into Spark RDDs
  */
-object ToRDD extends CaseInterpreter{
+object ToRDD extends CaseInterpreter[DataSet]{
 
   type Program[T] = SparkContext => RDD[T]
 
