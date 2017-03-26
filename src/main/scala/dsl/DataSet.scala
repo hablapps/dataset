@@ -4,37 +4,20 @@ package org.hablapps.datasets
  * GADT that represents data set transformation programs.
  */
 abstract class DataSet[A]{
-  type Of[D] = DataSet.Unapply[D]{ type A1 = A }
-}
-
-object DataSet extends DataSetSyntax{
-
-  /* Unapply */
-
-  import scalaz.Leibniz._
-
-  trait Unapply[D]{
-    type A1
-    type D1 <: DataSet[A1]
-    val leibniz: D === D1
-  }
-
-  object Unapply{
-    def apply[A,D<:DataSet[A]] =
-      new Unapply[D]{
-        type D1 = D
-        type A1 = A
-        val leibniz = refl[D1]
-      }
+  type Of[D] = Unapply[D]{ 
+    type P1[t]=DataSet[t]
+    type A1 = A 
   }
 }
+
+object DataSet extends DataSetSyntax
 
 case class Expand[A,B,D<:DataSet[A]](
   f: D, g: A => TraversableOnce[B]) extends DataSet[B]
 
 object Expand{
   implicit def toUnapply[A,B,D<:DataSet[A]] =
-    DataSet.Unapply[B,Expand[A,B,D]]
+    Unapply[B,DataSet,Expand[A,B,D]]
 }
 
 case class Filter[A,D<:DataSet[A]](
@@ -42,7 +25,7 @@ case class Filter[A,D<:DataSet[A]](
 
 object Filter{
   implicit def toUnapply[A,D<:DataSet[A]] =
-    DataSet.Unapply[A,Filter[A,D]]
+    Unapply[A,DataSet,Filter[A,D]]
 }
 
 case class DMap[A,B,D<:DataSet[A]](
@@ -50,7 +33,7 @@ case class DMap[A,B,D<:DataSet[A]](
 
 object DMap{
   implicit def toUnapply[A,B,D<:DataSet[A]] =
-    DataSet.Unapply[B,DMap[A,B,D]]
+    Unapply[B,DataSet,DMap[A,B,D]]
 }
 
 case class ReduceByKey[A,B,D<:DataSet[(A,B)]](
@@ -58,7 +41,7 @@ case class ReduceByKey[A,B,D<:DataSet[(A,B)]](
 
 object ReduceByKey{
   implicit def toUnapply[A,B,D<:DataSet[(A,B)]] =
-    DataSet.Unapply[(A,B),ReduceByKey[A,B,D]]
+    Unapply[(A,B),DataSet,ReduceByKey[A,B,D]]
 }
 
 case class GroupByKey[A,B,D<:DataSet[(A,B)]](
@@ -66,7 +49,7 @@ case class GroupByKey[A,B,D<:DataSet[(A,B)]](
 
 object GroupByKey{
   implicit def toUnapply[A,B,D<:DataSet[(A,B)]] =
-    DataSet.Unapply[(A,Seq[B]),GroupByKey[A,B,D]]
+    Unapply[(A,Seq[B]),DataSet,GroupByKey[A,B,D]]
 }
 
 case class SortBy[A,B,D<:DataSet[A]](
@@ -76,11 +59,11 @@ case class SortBy[A,B,D<:DataSet[A]](
 
 object SortBy{
   implicit def toUnapply[A,B,D<:DataSet[A]] =
-    DataSet.Unapply[A,SortBy[A,B,D]]
+    Unapply[A,DataSet,SortBy[A,B,D]]
 }
 
 case class Source(content: List[String]) extends DataSet[String]
 
 object Source{
-  implicit val toUnapply = DataSet.Unapply[String,Source]
+  implicit val toUnapply = Unapply[String,DataSet,Source]
 }

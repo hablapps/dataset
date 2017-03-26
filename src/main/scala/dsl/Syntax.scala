@@ -27,7 +27,7 @@ trait DataSetSyntax{
       }
     }
 
-    implicit def DataSetOps[D](d: D)(implicit e: DataSet.Unapply[D]) =
+    implicit def DataSetOps[D](d: D)(implicit e: Unapply[D]{ type P1[t]=DataSet[t] }) =
       new DataSetOps[e.A1,e.D1](e.leibniz(d))
   }
 }

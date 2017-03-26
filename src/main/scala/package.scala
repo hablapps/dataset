@@ -2,6 +2,28 @@ package org.hablapps
 
 package object datasets{
 
+  /* Unapply utils */
+
+  import scalaz.Leibniz._
+
+  trait Unapply[D]{
+    type P1[_]
+    type A1
+    // TODO: use liskov?
+    type D1 <: P1[A1]
+    val leibniz: D === D1
+  }
+
+  object Unapply{
+    def apply[A,P[_],D<:P[A]] =
+      new Unapply[D]{
+        type P1[t] = P[t]
+        type A1 = A
+        type D1 = D
+        val leibniz = refl[D1]
+      }
+  }
+
   /* Universal interpreters */ 
 
   trait NatTransCompanion[P[_]]{
@@ -24,16 +46,16 @@ package object datasets{
   }
 
   object CaseInterpreter{
-
-    trait Companion[P[_]]{
-
-      object Syntax{
-        implicit class RunOp[D<:P[_]](d: D){
-          def runWith[I <: CaseInterpreter[P]](i: I)(implicit C: i.Case[D]) = 
-            C(d)
-        }
+    
+    object Syntax{
+      
+      class RunOp[P[_],D<:P[_]](d: D){
+        def runWith[I <: CaseInterpreter[P]](i: I)(implicit C: i.Case[D]) = 
+          C(d)
       }
 
+      implicit def toRunOp[D](d: D)(implicit U: Unapply[D]) = 
+        new RunOp[U.P1,U.D1](U.leibniz(d))
     }
   }
 
@@ -77,17 +99,14 @@ package object datasets{
       type Interpretation[T]=Q[T]
     }
 
-    trait Companion[P[_]] extends CaseInterpreter.Companion[P]{
-      import scalaz.~>
-
-      implicit def fromUniversal[Q[_]](implicit nat: P~>Q) = 
-        new CaseInterpreterTo[P]{
-          type Interpretation[X] = Q[X]
-          implicit def univCase[X] = new Case[X,P[X]]{
-            def apply(d: P[X]): Interpretation[X] = nat(d)
-          }
+    import scalaz.~>
+    implicit def fromUniversal[P[_],Q[_]](implicit nat: P~>Q) = 
+      new CaseInterpreterTo[P]{
+        type Interpretation[X] = Q[X]
+        implicit def univCase[X] = new Case[X,P[X]]{
+          def apply(d: P[X]): Interpretation[X] = nat(d)
         }
-    }
+      }
   }
 
 }

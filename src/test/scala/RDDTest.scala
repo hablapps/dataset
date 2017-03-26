@@ -34,7 +34,7 @@ class RDDTest extends FunSpec with Matchers with BeforeAndAfterAll{
     }
 
     it("should work syntax"){
-      import DataSetCaseInterpreter.Syntax._
+      import CaseInterpreter.Syntax._
       val wcRDD = WordCount(Source(text)).runWith(ToRDD).apply(sc)
     } 
   }
