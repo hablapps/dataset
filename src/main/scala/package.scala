@@ -12,10 +12,7 @@ package object datasets{
       C: Forall[λ[α=>
         CaseInterpreter[P]#Case[P[α]]{
           type Out = Q[α]
-        }]]) =
-      new (P~>Q){
-        def apply[A](d: P[A]): Q[A] = C[A](d)
-      }
+        }]]) = λ[P~>Q]{ C.apply(_) }
   }
 
   /* Case by case interpreters */
