@@ -45,6 +45,14 @@ package object datasets{
     trait Case[D<:P[_]] extends super.Case[D]{
       type Out <: Interpretation
     }
+
+    object Case{
+      def apply[D<:P[_], I<: Interpretation](f: D => I) = 
+        new Case[D]{
+          type Out = I
+          def apply(d: D) = f(d)
+        }
+    }
   }
 
   /* Case-by-case interpreter for given language and interpretation */
@@ -54,6 +62,13 @@ package object datasets{
 
     trait Case[A,D<:P[A]] extends super.Case[D]{
       type Out = Interpretation[A]
+    }
+
+    object Case{
+      def apply[A,D<:P[A]](f: D => Interpretation[A]) = 
+        new Case[A,D]{
+          def apply(d: D) = f(d)
+        }
     }
   }
 

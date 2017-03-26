@@ -12,26 +12,22 @@ object ToHList extends CaseInterpreterToConstant[DataSet]{
   type Interpretation = HList
 
   implicit def fromSource = 
-    new Case[Source]{
-      type Out = Source :: HNil
-      def apply(d: Source): Out = d :: HNil
+    Case[Source, Source :: HNil]{ 
+      _ :: HNil
     }
 
   implicit def fromExpand[A,B,D<:DataSet[A]](implicit t: Case[D]) = 
-    new Case[Expand[A,B,D]]{
-      type Out = Expand[A,B,D] :: t.Out
-      def apply(d: Expand[A,B,D]): Out = d :: t(d.f)
+    Case[Expand[A,B,D], Expand[A,B,D] :: t.Out]{ d =>
+      d :: t(d.f)
     }
 
   implicit def fromDMap[A,B,D<:DataSet[A]](implicit t: Case[D]) = 
-    new Case[DMap[A,B,D]]{
-      type Out = DMap[A,B,D] :: t.Out
-      def apply(d: DMap[A,B,D]): Out = d :: t(d.f)
+    Case[DMap[A,B,D], DMap[A,B,D] :: t.Out]{ d => 
+      d :: t(d.f)
     }
 
   implicit def fromFilter[A,D<:DataSet[A]](implicit t: Case[D]) = 
-    new Case[Filter[A,D]]{
-      type Out = Filter[A,D] :: t.Out
-      def apply(d: Filter[A,D]): Out = d :: t(d.f)
+    Case[Filter[A,D], Filter[A,D] :: t.Out]{ d => 
+      d :: t(d.f)
     }
 }
