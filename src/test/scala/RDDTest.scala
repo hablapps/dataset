@@ -23,9 +23,9 @@ class RDDTest extends FunSpec with Matchers with BeforeAndAfterAll{
   val text: List[String] = List(
     "En un lugar de la mancha",
     "de cuyo nombre no quiero acordarme")
-  
+
   describe("Test RDDs"){
-    
+
     it("automatically"){
       val wcRDD = ToRDD(WordCount(Source(text))).apply(sc)
       val wcRDDDirect = WordCount(sc.parallelize(text))
@@ -36,7 +36,7 @@ class RDDTest extends FunSpec with Matchers with BeforeAndAfterAll{
     it("should work syntax"){
       import CaseInterpreter.Syntax._
       val wcRDD = WordCount(Source(text)).runWith(ToRDD).apply(sc)
-    } 
+    }
   }
 
   // Stops spark
