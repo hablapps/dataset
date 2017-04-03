@@ -18,8 +18,11 @@ class HListTest extends FunSpec with Matchers{
     }
 
     it("should work even better with ToHList.apply"){
-      val h: Expand[String,Int,Source] :: Source :: HNil =
-        ToHList(Source(List("hola")).expand(_ => List(1)))
+      // Gets confused with Poly#apply[R](implicit c : ProductCase.Aux[HNil, R]) : R
+      // if we are explicit about the type of `h`
+      val h = ToHList(Source(List("hola")).expand(_ => List(1)))
+
+      val h1: Expand[String,Int,Source] :: Source :: HNil = h
     }
   }
 }
