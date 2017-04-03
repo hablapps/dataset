@@ -16,8 +16,6 @@ addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.f
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "1.6.1",
-  "org.apache.flink" %% "flink-scala" % "1.2.0",
-  "org.apache.flink" %% "flink-clients" % "1.2.0",
   "org.scalaz" %% "scalaz-scalacheck-binding" % "7.2.7",
   "org.scalatest" %% "scalatest" % "3.0.0",
   "com.chuusai" %% "shapeless" % "2.3.2"
