@@ -50,23 +50,23 @@ object WordCount{
       .sortByKey(false)
       .map{ case (k, l) => (k, l.toList.sorted)}
 
-  // Flink version
+  // // Flink version
 
-  import org.apache.flink.api.scala.{DataSet => FDataSet, _}
-  import org.apache.flink.api.common.operators.Order
+  // import org.apache.flink.api.scala.{DataSet => FDataSet, _}
+  // import org.apache.flink.api.common.operators.Order
 
-  def apply(d: FDataSet[String]): FDataSet[(Int, List[String])] =
-    d.flatMap(_.split(" "))
-      .filter(!_.isEmpty)
-      .map((_, 1))
-      .groupBy(_._1)
-      .reduce((t1, t2) => (t1._1, t1._2 + t2._2))
-      .map(_.swap)
-      .groupBy(_._1)
-      .reduceGroup(_.toSeq match {
-        case (k, v) +: rest => (k, v +: rest.map(_._2))
-      })
-      .sortPartition(_._1, Order.DESCENDING)
-      .map{ t => (t._1, t._2.toList.sorted)}
+  // def apply(d: FDataSet[String]): FDataSet[(Int, List[String])] =
+  //   d.flatMap(_.split(" "))
+  //     .filter(!_.isEmpty)
+  //     .map((_, 1))
+  //     .groupBy(_._1)
+  //     .reduce((t1, t2) => (t1._1, t1._2 + t2._2))
+  //     .map(_.swap)
+  //     .groupBy(_._1)
+  //     .reduceGroup(_.toSeq match {
+  //       case (k, v) +: rest => (k, v +: rest.map(_._2))
+  //     })
+  //     .sortPartition(_._1, Order.DESCENDING)
+  //     .map{ t => (t._1, t._2.toList.sorted)}
 
 }

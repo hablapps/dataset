@@ -24,39 +24,49 @@ package object datasets{
       }
   }
 
-  /* Universal interpreters */ 
+  /* Universal interpreters */
 
   trait NatTransCompanion[P[_]]{
-  
+
     import scalaz.{~>, Forall}
 
     implicit def fromCase[Q[_]](implicit
-      C: Forall[λ[α=> CaseInterpreterTo.Aux[P,Q]#Case[α,P[α]]]]) = 
+      C: Forall[λ[α=> CaseInterpreterTo.Aux[P,Q]#Case[α,P[α]]]]) =
       λ[P~>Q]{ C.apply(_) }
   }
 
   /* Case by case interpreters for language P[_] */
-  
-  trait CaseInterpreter[P[_]]{
 
-    trait Case[D<:P[_]] extends shapeless.DepFn1[D]
+  trait CaseInterpreterConstant[P]{
 
-    def apply[D<:P[_]](d: D)(implicit t: Case[D]): t.Out =
+    trait Case[D<:P] extends shapeless.DepFn1[D]
+
+    def apply[D<:P](d: D)(implicit t: Case[D]): t.Out =
       t(d)
   }
 
+  trait CaseInterpreter[P[_]] extends CaseInterpreterConstant[P[_]]
+  // {
+
+  //   trait Case[D<:P[_]] extends shapeless.DepFn1[D]
+
+  //   def apply[D<:P[_]](d: D)(implicit t: Case[D]): t.Out =
+  //     t(d)
+  // }
+
   object CaseInterpreter{
-    
+
     object Syntax{
-      
+
       class RunOp[P[_],D<:P[_]](d: D){
-        def runWith[I <: CaseInterpreter[P]](i: I)(implicit C: i.Case[D]) = 
+        def runWith[I <: CaseInterpreter[P]](i: I)(implicit C: i.Case[D]) =
           C(d)
       }
 
-      implicit def toRunOp[D](d: D)(implicit U: Unapply[D]) = 
+      implicit def toRunOp[D](d: D)(implicit U: Unapply[D]) =
         new RunOp[U.P1,U.D1](U.leibniz(d))
     }
+
   }
 
   /* Case-by-case interpreter for given language and constant interpretation */
@@ -69,7 +79,7 @@ package object datasets{
     }
 
     object Case{
-      def apply[D<:P[_], I<: Interpretation](f: D => I) = 
+      def apply[D<:P[_], I<: Interpretation](f: D => I) =
         new Case[D]{
           type Out = I
           def apply(d: D) = f(d)
@@ -87,7 +97,7 @@ package object datasets{
     }
 
     object Case{
-      def apply[A,D<:P[A]](f: D => Interpretation[A]) = 
+      def apply[A,D<:P[A]](f: D => Interpretation[A]) =
         new Case[A,D]{
           def apply(d: D) = f(d)
         }
@@ -100,7 +110,7 @@ package object datasets{
     }
 
     import scalaz.~>
-    implicit def fromUniversal[P[_],Q[_]](implicit nat: P~>Q) = 
+    implicit def fromUniversal[P[_],Q[_]](implicit nat: P~>Q) =
       new CaseInterpreterTo[P]{
         type Interpretation[X] = Q[X]
         implicit def univCase[X] = new Case[X,P[X]]{
