@@ -25,39 +25,26 @@ package object datasets{
   }
 
 
-  /* Case-by-case interpreter for given language and constant interpretation */
-  import shapeless._
-
-  trait CaseInterpreterConstant[P[_],Q] extends Poly{
-
-    type Case[D<:P[_]] = poly.Case[this.type, D::HNil]{
-      type Result <: Q
-    }
-
-    object Case{
-      case class Builder[D<:P[_]](){
-        def apply[I<:Q](f: D => I) =
-        ProductCase[D::HNil,I]{ l => f(l.head) }
-      }
-      def apply[D<:P[_]] = Builder[D]()
-    }
-  }
-
   /* Case-by-case interpreter for given language and interpretation */
+  import shapeless._
 
   trait CaseInterpreter[P[_],Q[_]] extends Poly{
 
     type Case[A,D<:P[A]] = poly.Case[this.type, D::HNil]{
-      type Result = Q[A]
+      type Result <: Q[A]
     }
 
     object Case{
-      def apply[A,D<:P[A]](f: D => Q[A]) =
-        ProductCase[D::HNil,Q[A]]{
-          l => f(l.head)
-        }
+      case class Builder[A,D<:P[A]](){
+        def apply[I<:Q[A]](f: D => I) =
+        ProductCase[D::HNil,I]{ l => f(l.head) }
+      }
+      def apply[A,D<:P[A]] = Builder[A,D]()
     }
   }
 
+  /* Case-by-case interpreter for given language and constant interpretation */
+
+  trait CaseInterpreterConstant[P[_],Q] extends CaseInterpreter[P,Const[Q]#λ]
 
 }

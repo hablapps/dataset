@@ -10,8 +10,8 @@ class HListTest extends FunSpec with Matchers{
   describe("ToHList tests"){
 
     it("should work with implicitly"){
-      implicitly[ToHList.Case[Source]]
-      val t = implicitly[ToHList.Case[Expand[String,Int,Source]]]
+      implicitly[ToHList.Case[String,Source]]
+      val t = implicitly[ToHList.Case[Int,Expand[String,Int,Source]]]
 
       val h /*: Expand[String,Int,Source] :: Source :: HNil*/ =
         t(Source(List("hola")).expand(_ => List(1)))
