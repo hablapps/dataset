@@ -28,16 +28,15 @@ package object datasets{
   /* Case-by-case interpreter for given language and constant interpretation */
   import shapeless._
 
-  trait CaseInterpreterConstant[P[_]] extends Poly{ self =>
-    type Interpretation
+  trait CaseInterpreterConstant[P[_],Q] extends Poly{
 
-    type Case[D<:P[_]] = poly.Case[self.type, D::HNil]{
-      type Result <: Interpretation
+    type Case[D<:P[_]] = poly.Case[this.type, D::HNil]{
+      type Result <: Q
     }
 
     object Case{
       case class Builder[D<:P[_]](){
-        def apply[I<:Interpretation](f: D => I) =
+        def apply[I<:Q](f: D => I) =
         ProductCase[D::HNil,I]{ l => f(l.head) }
       }
       def apply[D<:P[_]] = Builder[D]()
@@ -46,16 +45,15 @@ package object datasets{
 
   /* Case-by-case interpreter for given language and interpretation */
 
-  trait CaseInterpreter[P[_]] extends Poly{ self =>
-    type Interpretation[_]
+  trait CaseInterpreter[P[_],Q[_]] extends Poly{
 
-    type Case[A,D<:P[A]] = poly.Case[self.type, D::HNil]{
-      type Result = Interpretation[A]
+    type Case[A,D<:P[A]] = poly.Case[this.type, D::HNil]{
+      type Result = Q[A]
     }
 
     object Case{
-      def apply[A,D<:P[A]](f: D => Interpretation[A]) =
-        ProductCase[D::HNil,Interpretation[A]]{
+      def apply[A,D<:P[A]](f: D => Q[A]) =
+        ProductCase[D::HNil,Q[A]]{
           l => f(l.head)
         }
     }

@@ -7,9 +7,7 @@ import shapeless.{HNil, ::, HList}
  * (heterogeneous) list of programs a given data set program
  * is made of.
  */
-object ToHList extends CaseInterpreterConstant[DataSet]{
-
-  type Interpretation = HList
+object ToHList extends CaseInterpreterConstant[DataSet,HList]{
 
   implicit def fromSource =
     Case[Source]{

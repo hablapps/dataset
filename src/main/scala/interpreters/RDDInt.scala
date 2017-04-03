@@ -7,9 +7,7 @@ import scala.reflect.{classTag, ClassTag}
 /**
  * A translation of dataset programs into Spark RDDs
  */
-object ToRDD extends CaseInterpreter[DataSet]{
-
-  type Interpretation[T] = SparkContext => RDD[T]
+object ToRDD extends CaseInterpreter[DataSet, λ[T=>SparkContext => RDD[T]]]{
 
   implicit def fromSource =
     Case[String,Source]{ d =>
