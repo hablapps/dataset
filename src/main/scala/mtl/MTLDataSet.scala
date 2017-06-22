@@ -29,25 +29,6 @@ object MTLApproach{
         _.split(" "))
   }
 
-  // Auxiliary type class that allows us to summon a list of implicit values
-  // whose types are specified by a given HList
-
-  trait Implicitly[L <: HList] extends DepFn0{
-    type Out = L
-  }
-
-  object Implicitly{
-
-    implicit val HNilImplicitly = new Implicitly[HNil]{
-      def apply() = HNil
-    }
-
-    implicit def HConsImplicitly[A, L <: HList](
-        implicit A: A, tail: Implicitly[L]) = new Implicitly[A::L]{
-      def apply() = A :: tail()
-    }
-  }
-
   // Context-sensitive interpretation
 
   trait HLRDD[A]{
@@ -60,7 +41,9 @@ object MTLApproach{
   object HLRDD{
 
     // Note that we can't specify a common type for `HLRDD#L`, since `source`,
-    // `expand` and `filter` each require different types.
+    // `expand` and `filter` require different types. Each method, however,
+    // is able to return its specific type information.
+
     implicit object HLRDDDataSet extends DataSet[HLRDD]{
 
       def source[A](l: List[A]) = new HLRDD[A]{
@@ -102,6 +85,25 @@ object MTLApproach{
         _.split(" "))
   }
 
+  // Auxiliary type class that allows us to summon a list of implicit values
+  // whose types are specified by a given HList
+
+  trait Implicitly[L <: HList] extends DepFn0{
+    type Out = L
+  }
+
+  object Implicitly{
+
+    implicit val HNilImplicitly = new Implicitly[HNil]{
+      def apply() = HNil
+    }
+
+    implicit def HConsImplicitly[A, L <: HList](
+        implicit A: A, tail: Implicitly[L]) = new Implicitly[A::L]{
+      def apply() = A :: tail()
+    }
+  }
+
   // Let's try to obtain our RDDs
 
   object Translation{
@@ -111,8 +113,8 @@ object MTLApproach{
     val r1 : SparkContext => RDD[String] =
       AdHocProgram.program(List("ab cd")).toRDD
 
-    // But this doesn't compile since the interpretation
-    // doesn't return the required type information.
+    // But the following doesn't compile since the interpretation
+    // doesn't return the required type information:
 
     // val r2 : SparkContext => RDD[String] =
     //   GenericProgram.program[HLRDD](List("ab cd")).toRDD
