@@ -1,12 +1,12 @@
 package org.hablapps.datasets
 
-/** 
+/**
  * GADT that represents data set transformation programs.
  */
 abstract class DataSet[A]{
-  type Of[D] = Unapply[D]{ 
+  type Of[D] = Unapply[D]{
     type P1[t]=DataSet[t]
-    type A1 = A 
+    type A1 = A
   }
 }
 
@@ -34,6 +34,14 @@ case class DMap[A,B,D<:DataSet[A]](
 object DMap{
   implicit def toUnapply[A,B,D<:DataSet[A]] =
     Unapply[B,DataSet,DMap[A,B,D]]
+}
+
+case class MapValues[A,B,C,D<:DataSet[(A,B)]](
+  f: D, g: B => C) extends DataSet[(A,C)]
+
+object MapValues{
+  implicit def toUnapply[A,B,C,D<:DataSet[(A,B)]] =
+    Unapply[(A,C),DataSet,MapValues[A,B,C,D]]
 }
 
 case class ReduceByKey[A,B,D<:DataSet[(A,B)]](

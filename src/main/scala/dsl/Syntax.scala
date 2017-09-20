@@ -13,6 +13,9 @@ trait DataSetSyntax{
       def map[B](f: A => B) =
         DMap[A,B,D](d,f)
 
+      def mapValues[A,B,C](f: B => C)(implicit u: DataSet[(A,B)]#Of[D]) =
+        MapValues[A,B,C,u.D1](u.leibniz(d),f)
+
       def sortBy[B](f: A => B, asc: Boolean = false)(implicit O: Ordering[B]) =
         SortBy[A,B,D](d, f, asc)
 

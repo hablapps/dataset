@@ -16,12 +16,12 @@ object WordCount{
       .reduceByKey[String,Int](_ + _)
       .map(_.swap)
       .groupByKey[Int,String]
+      .mapValues{ (l: Seq[String]) => l.sorted }
       .sortByKey[Int,Seq[String]]()
-      .map{ case (k, l) => (k, l.sorted)}
 
   // List version
 
-  def apply(d: List[String]) : List[(Int,List[String])] =
+  def apply(d: List[String]): List[(Int,List[String])] =
     d.flatMap(_.split(" "))
       .filter(! _.isEmpty)
       .map((_,1))
@@ -30,11 +30,9 @@ object WordCount{
       .toList
       .map(_.swap)
       .groupBy(_._1)
-      .mapValues(_.map(_._2))
+      .mapValues(_.map(_._2).toList.sorted)
       .toList
-      .sortBy(_._1)
-      .reverse
-      .map{ case (k, l) => (k, l.toList.sorted) }
+      .sortBy(_._1)(Ordering[Int].reverse)
 
   // RDD version
 
@@ -47,6 +45,6 @@ object WordCount{
       .reduceByKey(_ + _)
       .map(_.swap)
       .groupByKey
+      .mapValues{ _.toList.sorted }
       .sortByKey(false)
-      .map{ case (k, l) => (k, l.toList.sorted)}
 }

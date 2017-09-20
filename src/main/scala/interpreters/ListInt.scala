@@ -1,9 +1,9 @@
 package org.hablapps.datasets
 
-/** 
+/**
  * An interpreter that runs a dataset program over lists
  */
-import scalaz.~> 
+import scalaz.~>
 
 object ToList extends (DataSet ~> List){
 
@@ -11,10 +11,12 @@ object ToList extends (DataSet ~> List){
     case e: Expand[_,_,_] => expandToList(e)
     case f: Filter[_,_] => filterToList(f)
     case m: DMap[_,_,_] => mapToList(m)
+    case m: MapValues[_,_,_,_] => mapValuesToList(m)
     case s: SortBy[_,_,_] => sortByToList(s)
     case r: ReduceByKey[_,_,_] => reduceByKeyToList(r)
     case r: GroupByKey[_,_,_] => groupByKeyToList(r)
     case Source(content) => content
+
   }
 
   def expandToList[A,B,D<:DataSet[A]](e: Expand[A,B,D]): List[B] =
@@ -22,6 +24,9 @@ object ToList extends (DataSet ~> List){
 
   def mapToList[A,B,D<:DataSet[A]](e: DMap[A,B,D]): List[B] =
     apply(e.f) map (e.g)
+
+  def mapValuesToList[A,B,C,D<:DataSet[(A,B)]](e: MapValues[A,B,C,D]): List[(A,C)] =
+    apply(e.f).toMap.mapValues(e.g).toList
 
   def filterToList[A,D<:DataSet[A]](f: Filter[A,D]): List[A] =
     apply(f.f) filter f.g

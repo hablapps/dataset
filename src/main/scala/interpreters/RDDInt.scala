@@ -26,6 +26,12 @@ object ToRDD extends CaseInterpreter[DataSet, λ[T=>SparkContext => RDD[T]]]{
       (sc: SparkContext) => t(d.f).apply(sc) map d.g
     }
 
+  implicit def fromMapValues[A: ClassTag,B: ClassTag,C,D<:DataSet[(A,B)]](implicit
+    t: Case[(A,B),D]) =
+    Case[(A,C),MapValues[A,B,C,D]]{ d =>
+      (sc: SparkContext) => RDD.rddToPairRDDFunctions(t(d.f).apply(sc)) mapValues d.g
+    }
+
   implicit def fromFilter[A,D<:DataSet[A]](implicit
     t: Case[A,D]) =
     Case[A,Filter[A,D]]{ d =>
