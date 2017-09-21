@@ -32,7 +32,7 @@ object WordCount{
       .groupBy(_._1)
       .mapValues(_.map(_._2).toList.sorted)
       .toList
-      .sortBy(_._1)(Ordering[Int].reverse)
+      .sortWith(_._1 > _._1) // .sortBy(_._1)(Ordering[Int].reverse)
 
   // RDD version
 
